@@ -1,0 +1,241 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/v1/fields/fields.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Fields"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/fields": {
+      "post": {
+        "operationId": "Fields_CreateField",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fieldsCreateFieldResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fieldsCreateFieldRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Fields"
+        ]
+      }
+    },
+    "/v1/fields/{id}": {
+      "get": {
+        "operationId": "Fields_GetFieldByID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fieldsGetFieldByIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Fields"
+        ]
+      },
+      "delete": {
+        "operationId": "Fields_DeleteField",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Fields"
+        ]
+      },
+      "put": {
+        "operationId": "Fields_UpdateField",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fieldsUpdateFieldResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fieldsFieldsUpdateFieldBody"
+            }
+          }
+        ],
+        "tags": [
+          "Fields"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "fieldsCreateFieldRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "culture": {
+          "type": "string"
+        }
+      }
+    },
+    "fieldsCreateFieldResponse": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/modelField"
+        }
+      }
+    },
+    "fieldsFieldsUpdateFieldBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "culture": {
+          "type": "string"
+        }
+      }
+    },
+    "fieldsGetFieldByIDResponse": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/modelField"
+        }
+      }
+    },
+    "fieldsUpdateFieldResponse": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/modelField"
+        }
+      }
+    },
+    "modelField": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "culture": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

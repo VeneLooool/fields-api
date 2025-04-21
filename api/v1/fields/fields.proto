@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package fields_api.api.v1.fields;
+
+option go_package = "github.com/VeneLooool/fields-api/pkg/api/v1/fields;fields";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "api/v1/model/fields.proto";
+
+service Fields {
+  rpc CreateField(CreateField.Request) returns (CreateField.Response) {
+    option (google.api.http) = {
+      post: "/v1/fields"
+      body: "*"
+    };
+  }
+  rpc UpdateField(UpdateField.Request) returns (UpdateField.Response) {
+    option (google.api.http) = {
+      put: "/v1/fields/{id}"
+      body: "*"
+    };
+  }
+  rpc GetFieldByID(GetFieldByID.Request) returns (GetFieldByID.Response) {
+    option (google.api.http) = {
+      get: "/v1/fields/{id}"
+    };
+  }
+  rpc DeleteField(DeleteField.Request) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/fields/{id}"
+    };
+  }
+}
+
+message CreateField {
+  message Request {
+    string name = 1;
+    string culture = 2;
+  }
+  message Response {
+    model.Field field = 1;
+  }
+}
+
+message UpdateField {
+  message Request {
+    uint64 id = 1;
+    string name = 2;
+    string culture = 3;
+  }
+  message Response {
+    model.Field field = 1;
+  }
+}
+
+message GetFieldByID {
+  message Request {
+    uint64 id = 1;
+  }
+  message Response {
+    model.Field field = 1;
+  }
+}
+
+message DeleteField {
+  message Request {
+    uint64 id = 1;
+  }
+}
