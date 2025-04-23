@@ -3,3 +3,5 @@
 /vendor.protogen
 /.idea
 /.vscode
+/.env
+/fields-api

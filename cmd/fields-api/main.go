@@ -2,15 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"net/http"
 
 	"github.com/VeneLooool/fields-api/internal/app/api/v1/fields"
 	pb "github.com/VeneLooool/fields-api/internal/pb/api/v1/fields"
+	"github.com/VeneLooool/fields-api/internal/pkg/db"
+	fields_repo "github.com/VeneLooool/fields-api/internal/repository/fields"
+	fields_uc "github.com/VeneLooool/fields-api/internal/usecase/fields"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -28,11 +31,20 @@ func main() {
 	}
 }
 
-func runGRPC(_ context.Context) error {
+func runGRPC(ctx context.Context) error {
 	grpcServer := grpc.NewServer()
 	defer grpcServer.GracefulStop()
 
-	fieldsServer := fields.NewService()
+	dbAdapter, err := db.New(ctx)
+	if err != nil {
+		return err
+	}
+	defer dbAdapter.Close(ctx)
+
+	fieldsServer, err := newServices(ctx, dbAdapter)
+	if err != nil {
+		return err
+	}
 	pb.RegisterFieldsServer(grpcServer, fieldsServer)
 
 	grpcListener, err := net.Listen("tcp", ":50051")
@@ -74,4 +86,11 @@ func runHTTPGateway(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func newServices(ctx context.Context, dbAdapter db.DataBase) (*fields.Implementation, error) {
+	fieldsRepo := fields_repo.New(dbAdapter)
+	fieldsUC := fields_uc.New(fieldsRepo)
+
+	return fields.NewService(fieldsUC), nil
 }

@@ -7,9 +7,13 @@ import (
 // Implementation is a Service implementation
 type Implementation struct {
 	desc.UnimplementedFieldsServer
+
+	fieldUC FieldUC
 }
 
 // NewService return new instance of Implementation.
-func NewService() *Implementation {
-	return &Implementation{}
+func NewService(fieldUC FieldUC) *Implementation {
+	return &Implementation{
+		fieldUC: fieldUC,
+	}
 }
