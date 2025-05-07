@@ -8,4 +8,11 @@ message Field {
   uint64 id = 1;
   string name = 2;
   string culture = 3;
+  string created_by = 4;
+  repeated Coordinate coordinates = 5;
+}
+
+message Coordinate {
+  float latitude = 1;
+  float longitude = 2;
 }

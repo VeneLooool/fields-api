@@ -26,6 +26,11 @@ service Fields {
       get: "/v1/fields/{id}"
     };
   }
+  rpc GetFieldsByAuthor(GetFieldsByAuthor.Request) returns (GetFieldsByAuthor.Response) {
+    option (google.api.http) = {
+      get: "/v1/fields/authors/{login}"
+    };
+  }
   rpc DeleteField(DeleteField.Request) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/fields/{id}"
@@ -37,6 +42,8 @@ message CreateField {
   message Request {
     string name = 1;
     string culture = 2;
+    string created_by = 3;
+    repeated model.Coordinate coordinates = 4;
   }
   message Response {
     model.Field field = 1;
@@ -48,6 +55,7 @@ message UpdateField {
     uint64 id = 1;
     string name = 2;
     string culture = 3;
+    repeated model.Coordinate coordinates = 4;
   }
   message Response {
     model.Field field = 1;
@@ -60,6 +68,15 @@ message GetFieldByID {
   }
   message Response {
     model.Field field = 1;
+  }
+}
+
+message GetFieldsByAuthor {
+  message Request {
+    string login = 1;
+  }
+  message Response {
+    repeated model.Field fields = 1;
   }
 }
 

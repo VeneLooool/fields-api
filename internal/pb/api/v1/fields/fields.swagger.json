@@ -48,6 +48,36 @@
         ]
       }
     },
+    "/v1/fields/authors/{login}": {
+      "get": {
+        "operationId": "Fields_GetFieldsByAuthor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fieldsGetFieldsByAuthorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Fields"
+        ]
+      }
+    },
     "/v1/fields/{id}": {
       "get": {
         "operationId": "Fields_GetFieldByID",
@@ -156,6 +186,16 @@
         },
         "culture": {
           "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/modelCoordinate"
+          }
         }
       }
     },
@@ -175,6 +215,13 @@
         },
         "culture": {
           "type": "string"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/modelCoordinate"
+          }
         }
       }
     },
@@ -186,11 +233,36 @@
         }
       }
     },
+    "fieldsGetFieldsByAuthorResponse": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/modelField"
+          }
+        }
+      }
+    },
     "fieldsUpdateFieldResponse": {
       "type": "object",
       "properties": {
         "field": {
           "$ref": "#/definitions/modelField"
+        }
+      }
+    },
+    "modelCoordinate": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float"
         }
       }
     },
@@ -206,6 +278,16 @@
         },
         "culture": {
           "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/modelCoordinate"
+          }
         }
       }
     },

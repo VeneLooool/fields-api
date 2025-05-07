@@ -37,6 +37,10 @@ func (u *UseCase) Get(ctx context.Context, id uint64) (model.Field, error) {
 	return field, nil
 }
 
+func (u *UseCase) GetByAuthor(ctx context.Context, authorLogin string) ([]model.Field, error) {
+	return u.repo.GetByAuthor(ctx, authorLogin)
+}
+
 func (u *UseCase) Delete(ctx context.Context, id uint64) error {
 	return u.repo.Delete(ctx, id)
 }

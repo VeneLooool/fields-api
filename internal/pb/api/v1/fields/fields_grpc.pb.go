@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Fields_CreateField_FullMethodName  = "/fields_api.api.v1.fields.Fields/CreateField"
-	Fields_UpdateField_FullMethodName  = "/fields_api.api.v1.fields.Fields/UpdateField"
-	Fields_GetFieldByID_FullMethodName = "/fields_api.api.v1.fields.Fields/GetFieldByID"
-	Fields_DeleteField_FullMethodName  = "/fields_api.api.v1.fields.Fields/DeleteField"
+	Fields_CreateField_FullMethodName       = "/fields_api.api.v1.fields.Fields/CreateField"
+	Fields_UpdateField_FullMethodName       = "/fields_api.api.v1.fields.Fields/UpdateField"
+	Fields_GetFieldByID_FullMethodName      = "/fields_api.api.v1.fields.Fields/GetFieldByID"
+	Fields_GetFieldsByAuthor_FullMethodName = "/fields_api.api.v1.fields.Fields/GetFieldsByAuthor"
+	Fields_DeleteField_FullMethodName       = "/fields_api.api.v1.fields.Fields/DeleteField"
 )
 
 // FieldsClient is the client API for Fields service.
@@ -33,6 +34,7 @@ type FieldsClient interface {
 	CreateField(ctx context.Context, in *CreateField_Request, opts ...grpc.CallOption) (*CreateField_Response, error)
 	UpdateField(ctx context.Context, in *UpdateField_Request, opts ...grpc.CallOption) (*UpdateField_Response, error)
 	GetFieldByID(ctx context.Context, in *GetFieldByID_Request, opts ...grpc.CallOption) (*GetFieldByID_Response, error)
+	GetFieldsByAuthor(ctx context.Context, in *GetFieldsByAuthor_Request, opts ...grpc.CallOption) (*GetFieldsByAuthor_Response, error)
 	DeleteField(ctx context.Context, in *DeleteField_Request, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -74,6 +76,16 @@ func (c *fieldsClient) GetFieldByID(ctx context.Context, in *GetFieldByID_Reques
 	return out, nil
 }
 
+func (c *fieldsClient) GetFieldsByAuthor(ctx context.Context, in *GetFieldsByAuthor_Request, opts ...grpc.CallOption) (*GetFieldsByAuthor_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFieldsByAuthor_Response)
+	err := c.cc.Invoke(ctx, Fields_GetFieldsByAuthor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *fieldsClient) DeleteField(ctx context.Context, in *DeleteField_Request, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -91,6 +103,7 @@ type FieldsServer interface {
 	CreateField(context.Context, *CreateField_Request) (*CreateField_Response, error)
 	UpdateField(context.Context, *UpdateField_Request) (*UpdateField_Response, error)
 	GetFieldByID(context.Context, *GetFieldByID_Request) (*GetFieldByID_Response, error)
+	GetFieldsByAuthor(context.Context, *GetFieldsByAuthor_Request) (*GetFieldsByAuthor_Response, error)
 	DeleteField(context.Context, *DeleteField_Request) (*emptypb.Empty, error)
 	mustEmbedUnimplementedFieldsServer()
 }
@@ -110,6 +123,9 @@ func (UnimplementedFieldsServer) UpdateField(context.Context, *UpdateField_Reque
 }
 func (UnimplementedFieldsServer) GetFieldByID(context.Context, *GetFieldByID_Request) (*GetFieldByID_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFieldByID not implemented")
+}
+func (UnimplementedFieldsServer) GetFieldsByAuthor(context.Context, *GetFieldsByAuthor_Request) (*GetFieldsByAuthor_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFieldsByAuthor not implemented")
 }
 func (UnimplementedFieldsServer) DeleteField(context.Context, *DeleteField_Request) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteField not implemented")
@@ -189,6 +205,24 @@ func _Fields_GetFieldByID_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Fields_GetFieldsByAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFieldsByAuthor_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FieldsServer).GetFieldsByAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fields_GetFieldsByAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FieldsServer).GetFieldsByAuthor(ctx, req.(*GetFieldsByAuthor_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Fields_DeleteField_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteField_Request)
 	if err := dec(in); err != nil {
@@ -225,6 +259,10 @@ var Fields_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFieldByID",
 			Handler:    _Fields_GetFieldByID_Handler,
+		},
+		{
+			MethodName: "GetFieldsByAuthor",
+			Handler:    _Fields_GetFieldsByAuthor_Handler,
 		},
 		{
 			MethodName: "DeleteField",

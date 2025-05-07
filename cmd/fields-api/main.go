@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 
 	"github.com/VeneLooool/fields-api/internal/app/api/v1/fields"
+	"github.com/VeneLooool/fields-api/internal/config"
 	pb "github.com/VeneLooool/fields-api/internal/pb/api/v1/fields"
 	"github.com/VeneLooool/fields-api/internal/pkg/db"
 	fields_repo "github.com/VeneLooool/fields-api/internal/repository/fields"
@@ -20,18 +22,23 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	cfg, err := config.New(ctx)
+	if err != nil {
+		log.Fatalf("failed to create new config: %s", err.Error())
+	}
+
 	go func() {
-		if err := runGRPC(ctx); err != nil {
+		if err := runGRPC(ctx, cfg); err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	if err := runHTTPGateway(ctx); err != nil {
+	if err := runHTTPGateway(ctx, cfg); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func runGRPC(ctx context.Context) error {
+func runGRPC(ctx context.Context, cfg *config.Config) error {
 	grpcServer := grpc.NewServer()
 	defer grpcServer.GracefulStop()
 
@@ -47,21 +54,21 @@ func runGRPC(ctx context.Context) error {
 	}
 	pb.RegisterFieldsServer(grpcServer, fieldsServer)
 
-	grpcListener, err := net.Listen("tcp", ":50051")
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.GrpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %s", err.Error())
 	}
-
-	log.Println("gRPC server listening on :50051")
+	
+	log.Printf("gRPC server listening on :%s\n", cfg.GrpcPort)
 	if err = grpcServer.Serve(grpcListener); err != nil {
 		return err
 	}
 	return nil
 }
 
-func runHTTPGateway(ctx context.Context) error {
+func runHTTPGateway(ctx context.Context, cfg *config.Config) error {
 	mux := runtime.NewServeMux()
-	err := pb.RegisterFieldsHandlerFromEndpoint(ctx, mux, "localhost:50051", []grpc.DialOption{
+	err := pb.RegisterFieldsHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", cfg.GrpcPort), []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	})
 	if err != nil {
@@ -77,11 +84,27 @@ func runHTTPGateway(ctx context.Context) error {
 		http.ServeFile(w, r, "./internal/pb/api/v1/fields/fields.swagger.json")
 	})
 
-	// gRPC → REST mux
-	http.Handle("/", mux)
+	withCORS := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	log.Println("HTTP gateway listening on :8080")
-	if err = http.ListenAndServe(":8080", nil); err != nil {
+			// Для preflight-запросов
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			h.ServeHTTP(w, r)
+		})
+	}
+
+	// gRPC → REST mux
+	http.Handle("/", withCORS(mux))
+
+	log.Printf("HTTP gateway listening on :%s\n", cfg.HttpPort)
+	if err = http.ListenAndServe(fmt.Sprintf(":%s", cfg.HttpPort), nil); err != nil {
 		return err
 	}
 
